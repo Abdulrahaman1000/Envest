@@ -1,243 +1,264 @@
 # EnVest - Mobile Investment App
 
-A modern, mobile-first investment application built with React, TypeScript, and cutting-edge technologies.
+A modern, mobile-first investment application built with React, TypeScript, and Tailwind CSS.
 
-## 🚀 Tech Stack
+## 🚀 Quick Start
 
-- **Framework**: React 18 + TypeScript
-- **Styling**: Tailwind CSS 3
-- **State Management**: Zustand
-- **Data Fetching**: TanStack Query (React Query)
-- **UI Components**: shadcn/ui + Radix UI
-- **Routing**: React Router 6
-- **Backend**: Express.js
-- **Build Tool**: Vite
-- **Package Manager**: pnpm
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Run the app
+npm run dev
+
+# 3. Open http://localhost:5173 in your browser
+```
+
+**That's it!** No server setup needed. 🎉
+
+## 📱 Features
+
+✅ **Complete Authentication**
+- Email/Password signup & login
+- Face ID authentication
+- Email verification with OTP
+- Multi-step KYC verification
+- Password reset flow
+
+✅ **Dashboard**
+- Portfolio overview with balances
+- Investment tracking
+- Transaction history
+- Quick action buttons
+
+✅ **Wallet Management**
+- Fund NGN wallet (Nigerian Naira)
+- Deposit USD wallet (US Dollar)
+- Multiple payment methods
+- Quick amount presets
+
+✅ **Stock Investment**
+- Browse 5 Nigerian stocks
+- Real-time price updates
+- Calculate shares based on amount
+- One-click investment
+
+✅ **Payment Processing**
+- Secure payment gateway
+- Card payment simulation
+- OTP verification
+- Success confirmation
+
+## 🎨 Design
+
+- **Mobile-First**: Optimized for mobile devices (320px - 480px)
+- **Dark Theme**: Easy on the eyes with slate-900 background
+- **Yellow Accents**: Bright, accessible primary color
+- **Touch-Friendly**: Large buttons and inputs for mobile
+- **No Animations**: Fast, responsive feel
+
+## 🛠️ Tech Stack
+
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Zustand** - State management
+- **React Router** - Navigation
+- **Vite** - Build tool
+- **shadcn/ui** - Pre-built components
 
 ## 📁 Project Structure
 
 ```
 client/
-├── pages/               # Page components for all screens
-│   ├── Splash.tsx      # Splash screen
-│   ├── Onboarding.tsx  # Onboarding flow
-│   ├── CreateAccount.tsx
-│   ├── VerifyEmail.tsx
-│   ├── KYC.tsx         # Know Your Customer verification
-│   ├── Login.tsx
-│   ├── ForgotPassword.tsx
-│   ├── ResetPassword.tsx
-│   ├── FaceID.tsx
-│   ├── Home.tsx        # Main dashboard
-│   ├── FundNGNWallet.tsx
-│   ├── DepositUSDWallet.tsx
-│   ├── PaymentGateway.tsx
-│   └── InvestStocks.tsx
-├── stores/             # Zustand state management
-│   ├── authStore.ts    # Authentication state
-│   ├── investmentStore.ts  # Investment portfolio state
-│   └── onboardingStore.ts  # Onboarding flow state
-├── components/         # Reusable UI components
-│   └── ui/            # shadcn/ui components
-├── App.tsx            # Main routing setup
-├── global.css         # Global styles & theme
-└── vite-env.d.ts
-
-server/
-├── index.ts           # Express server setup
-└── routes/            # API endpoints
-
-shared/
-└── api.ts             # Shared types between client & server
+├── pages/          # 14 page components
+├── stores/         # Zustand stores (auth, investment, onboarding)
+├── components/     # Reusable UI components
+├── App.tsx         # Routing setup
+└── global.css      # Theme & global styles
 ```
 
-## 🎨 Features
+## 📱 All Pages
 
-### Authentication Flow
-- **Splash Screen**: Welcome screen with auto-redirect
-- **Onboarding**: Introduction carousel
-- **Account Creation**: Email, password, personal info
-- **Email Verification**: OTP verification
-- **KYC Verification**: Multi-step Know Your Customer verification
-- **Login**: Email/password with Face ID option
-- **Password Reset**: Email-based password recovery
+1. **Splash** (`/`) - Welcome screen
+2. **Onboarding** (`/onboarding`) - Feature carousel
+3. **Create Account** (`/create-account`) - Registration
+4. **Verify Email** (`/verify-email`) - OTP verification
+5. **KYC** (`/kyc`) - Identity verification
+6. **Login** (`/login`) - User login
+7. **Forgot Password** (`/forgot-password`) - Password recovery
+8. **Reset Password** (`/reset-password`) - Password reset
+9. **Face ID** (`/face-id`) - Biometric login
+10. **Home** (`/home`) - Main dashboard
+11. **Fund NGN** (`/fund-ngn-wallet`) - Top up NGN
+12. **Deposit USD** (`/deposit-usd-wallet`) - Deposit USD
+13. **Payment** (`/payment-gateway`) - Payment processing
+14. **Invest** (`/invest-stocks`) - Stock browsing
 
-### App Features
-- **Dashboard**: Portfolio overview with balance and investments
-- **Wallet Management**: 
-  - Fund NGN (Nigerian Naira) Wallet
-  - Deposit USD (US Dollar) Wallet
-- **Payment Gateway**: Card payment processing with OTP
-- **Stock Investing**: Browse and invest in Nigerian stocks
-- **Transaction History**: View all transactions
+## 📊 State Management
 
-### State Management
-- **Auth Store**: User authentication and profile
-- **Investment Store**: Portfolio, wallet balances, investments
-- **Onboarding Store**: Multi-step form state during signup
+### Auth Store
+```typescript
+- User data (email, name, phone)
+- Login status
+- Logout function
+```
 
-## 🛠️ Development
+### Investment Store
+```typescript
+- Portfolio value
+- Wallet balances (NGN & USD)
+- Investments list
+```
 
-### Installation
+### Onboarding Store
+```typescript
+- Multi-step form data
+- Current step
+- Form validation
+```
+
+## 🎯 Usage Examples
+
+### Sign Up
+1. Click "Create Account"
+2. Fill in email, name, phone, password
+3. Verify email with 6-digit code
+4. Complete KYC (country, ID, bank)
+5. Success! Access home page
+
+### Invest
+1. From Home, scroll to "My Investments"
+2. Click "View all"
+3. Select a stock
+4. Enter investment amount
+5. Complete payment
+6. Investment added to portfolio
+
+### Fund Wallet
+1. From Home, click "Fund NGN"
+2. Select amount (or use quick buttons)
+3. Choose payment method
+4. Enter card details
+5. Verify OTP
+6. Success! Balance updated
+
+## 🔧 Commands
 
 ```bash
-# Install dependencies
-pnpm install
+npm run dev           # Start dev server
+npm run build         # Build for production
+npm run preview       # Preview production build
+npm run type-check    # Check TypeScript
+npm run format        # Format code
+npm run test          # Run tests
 ```
 
-### Running the Development Server
+## 🎨 Customization
 
-```bash
-# Start dev server (client + server)
-pnpm dev
+### Change Colors
+Edit `client/global.css`:
+```css
+:root {
+  /* Change from yellow-400 to your color */
+  --primary: your-color;
+}
 ```
 
-The app will be available at `http://localhost:8080`
-
-### Building for Production
-
-```bash
-# Build both client and server
-pnpm build
-
-# Start production server
-pnpm start
+### Add New Page
+1. Create `client/pages/MyPage.tsx`
+2. Add route in `client/App.tsx`:
+```typescript
+<Route path="/my-page" element={<MyPage />} />
 ```
 
-### Type Checking
-
-```bash
-pnpm typecheck
+### Change Port
+Edit `vite.config.ts`:
+```typescript
+server: {
+  port: 3000, // Change to your port
+}
 ```
 
-### Testing
+## 📱 Mobile Testing
 
-```bash
-pnpm test
-```
+### Browser DevTools
+1. Open DevTools (F12)
+2. Click device icon (Ctrl+Shift+M)
+3. Select iPhone/Android preset
+4. Refresh page
 
-## 📱 Mobile-First Design
-
-The entire application is built with mobile-first design principles:
-- Responsive layout optimized for mobile screens
-- Touch-friendly buttons and controls
-- Single-column layout for mobile
-- Optimized for viewport widths from 320px to 480px
-
-## 🔐 Security Features
-
-- Password-protected accounts
-- Email verification
-- OTP authentication for payments
-- KYC verification process
-- Face ID authentication option
-- Bank account validation
-
-## 💱 Multi-Currency Support
-
-- **NGN (Nigerian Naira)**: Primary currency for local investments
-- **USD (US Dollar)**: For international transactions
-
-## 📊 Investment Features
-
-- Browse Nigerian stocks with real-time prices
-- Track portfolio performance
-- View investment gains/losses
-- Multi-step investment purchase process
-- Payment gateway integration
-
-## 🎯 User Flows
-
-### Signup Flow
-1. Onboarding → Create Account → Verify Email → KYC → Success
-
-### Login Flow
-1. Login with Email/Password or Face ID
-2. Dashboard access
-
-### Investment Flow
-1. View Stocks → Select Stock → Enter Amount → Payment → Success
-
-### Wallet Top-up
-1. Select Currency (NGN/USD) → Enter Amount → Select Payment Method → Payment Gateway → Success
+### Real Device
+1. Find your computer's IP: `ipconfig` (Windows) or `ifconfig` (Mac/Linux)
+2. Access: `http://YOUR_IP:5173`
+3. Test on your phone
 
 ## 🚀 Deployment
 
-The app is ready for deployment to:
-- **Netlify**: Via MCP integration
-- **Vercel**: Via MCP integration
-- **AWS**: Traditional hosting
-- **DigitalOcean**: VPS deployment
+### Netlify
+1. Push to Git
+2. Connect to Netlify
+3. Build command: `npm run build`
+4. Publish directory: `dist`
 
-## 📦 Dependencies
+### Vercel
+1. Push to Git
+2. Import project in Vercel
+3. Deploy (auto-configured)
 
-### Core
-- react: ^18.3.1
-- react-dom: ^18.3.1
-- react-router-dom: ^6.30.1
-- typescript: ^5.9.2
+## 🐛 Troubleshooting
 
-### State & Data
-- zustand: ^5.0.9
-- @tanstack/react-query: ^5.84.2
-- zod: ^3.25.76
+### Port Already in Use
+```bash
+npm run dev -- --port 3000
+```
 
-### UI & Styling
-- tailwindcss: ^3.4.17
-- tailwindcss-animate: ^1.0.7
-- @radix-ui/* (various UI components)
-- lucide-react: ^0.539.0
-- shadcn/ui components
+### Dependencies Issues
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
 
-### Server
-- express: ^5.1.0
-- cors: ^2.8.5
+### Build Errors
+```bash
+npm run type-check  # Check TypeScript
+npm run build       # Try building
+```
 
-## 🌈 Customization
+## 📚 Resources
 
-### Colors & Theme
-Edit `client/global.css` and `tailwind.config.ts` to customize:
-- Primary color (currently yellow: #FBBF24)
-- Background colors
-- Text colors
-- Component styles
+- [React Docs](https://react.dev)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Zustand](https://github.com/pmndrs/zustand)
+- [React Router](https://reactrouter.com)
+- [Vite Docs](https://vitejs.dev)
 
-### Forms & Validation
-Forms use React Hook Form + Zod for:
-- Input validation
-- Error handling
-- Type-safe form submission
+## 💡 Tips
+
+- All pages are mobile-optimized
+- Dark theme reduces eye strain
+- Large touch targets (48px+)
+- No responsive breakpoints needed
+- Works offline (except API calls)
 
 ## 📝 Notes
 
-- The app uses Zustand for simple, efficient state management
-- TanStack Query can be integrated for API data fetching
-- Shadcn/ui components are pre-installed and ready to use
-- All pages are fully responsive and mobile-optimized
-- The backend is optional - API calls can be configured as needed
+- Mock data included (no API needed)
+- All state managed with Zustand
+- Forms validated before submission
+- OTP simulation accepts any 6 digits
+- Payment gateway is a mock
 
-## 🤝 Contributing
+## 🎉 Next Steps
 
-Feel free to extend this template with additional features:
-- Add more pages
-- Integrate with real APIs
-- Add more payment methods
-- Implement real authentication
-- Connect to actual investment APIs
-
-## 📄 License
-
-This project is open source and available under the MIT license.
-
-## 🎓 Learning Resources
-
-- [React Documentation](https://react.dev)
-- [Zustand Documentation](https://github.com/pmndrs/zustand)
-- [TanStack Query Documentation](https://tanstack.com/query/latest)
-- [Tailwind CSS Documentation](https://tailwindcss.com)
-- [Shadcn/UI Documentation](https://ui.shadcn.com)
-- [React Router Documentation](https://reactrouter.com)
+1. Test all user flows
+2. Customize colors to match your brand
+3. Add real API endpoints
+4. Connect to payment provider
+5. Deploy to production
 
 ---
 
-**Happy investing! 🚀📈**
+**Built with ❤️ for mobile-first investing**
+
+Start developing: `npm install && npm run dev`
