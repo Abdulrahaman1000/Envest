@@ -15,6 +15,12 @@ export default function Home() {
     navigate('/login');
   };
 
+  // Redirect if not authenticated
+  if (!user) {
+    navigate('/login');
+    return null;
+  }
+
   const investments = [
     {
       id: '1',
