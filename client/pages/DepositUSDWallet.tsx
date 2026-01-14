@@ -10,7 +10,7 @@ export default function DepositUSDWallet() {
   const [amount, setAmount] = useState('');
   const [step, setStep] = useState<'amount' | 'payment'>('amount');
 
-  const quickAmounts = [100, 250, 500, 1000];
+  const quickAmounts = [100, 250, 5000, 1000];
 
   const handleAmountSelect = (value: number) => {
     setAmount(value.toString());
