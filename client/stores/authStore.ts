@@ -21,9 +21,9 @@ export interface AuthState {
   user: User | null;
   isLoading: boolean;
   error: string | null;
-  
+
   // Auth actions
-  setUser: (user: User) => void;
+  setUser: (user: User | null) => void;
   logout: () => void;
   clearError: () => void;
   setLoading: (loading: boolean) => void;
@@ -36,10 +36,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: false,
   error: null,
 
-  setUser: (user: User) =>
+  setUser: (user: User | null) =>
     set({
       user,
-      isAuthenticated: true,
+      isAuthenticated: !!user,
       error: null,
     }),
 
