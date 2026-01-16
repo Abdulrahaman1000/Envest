@@ -1,52 +1,64 @@
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import AuthLayout from '@/components/AuthLayout';
+import { FormInput } from '@/components/FormInput';
+import { forgotPasswordSchema, ForgotPasswordValues } from '@/lib/validations/auth';
 import { ArrowLeft } from 'lucide-react';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
-    navigate('/reset-password');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ForgotPasswordValues>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: '',
+    },
+  });
+
+  const onSubmit = (data: ForgotPasswordValues) => {
+    console.log('Resetting password for:', data.email);
+    // In a real app, we would send the email here
+    navigate('/verify-email');
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-900 px-4 py-6">
-      <button
-        onClick={() => navigate('/login')}
-        className="mb-4 flex items-center gap-2 text-slate-400 hover:text-white"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back
-      </button>
+    <AuthLayout
+      title="Forgot Password"
+      subtitle="Enter your email to reset your password"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <FormInput
+          label="Email address"
+          placeholder="Email address"
+          required
+          {...register('email')}
+          error={errors.email?.message}
+        />
 
-      <div className="flex-1 max-w-sm w-full mx-auto space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-white">Forgot Password</h1>
-          <p className="text-sm text-slate-400">
-            Enter your email to reset your password
-          </p>
-        </div>
+        <Button
+          type="submit"
+          className="w-full bg-[#B8860B] hover:bg-[#966F09] text-white h-12 rounded-xl text-lg font-semibold"
+        >
+          Send Reset Code
+        </Button>
 
-        <Card className="border-0 bg-slate-800 p-4 space-y-4">
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-300">Email</label>
-            <Input
-              type="email"
-              placeholder="you@example.com"
-              className="border-slate-600 bg-slate-700 text-white placeholder:text-slate-500"
-            />
-          </div>
-
-          <Button
-            onClick={handleSubmit}
-            className="w-full bg-yellow-400 text-slate-900 hover:bg-yellow-500"
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="flex items-center gap-2 text-slate-500 hover:text-slate-900 font-bold text-sm bg-slate-100 px-4 py-2 rounded-lg"
           >
-            Send Reset Code
-          </Button>
-        </Card>
-      </div>
-    </div>
+            <ArrowLeft size={16} />
+            Go Back to Login
+          </button>
+        </div>
+      </form>
+    </AuthLayout>
   );
 }

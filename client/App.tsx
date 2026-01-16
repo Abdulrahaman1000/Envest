@@ -13,6 +13,7 @@ import Splash from "./pages/Splash";
 import Onboarding from "./pages/Onboarding";
 import CreateAccount from "./pages/CreateAccount";
 import VerifyEmail from "./pages/VerifyEmail";
+import CompleteProfile from "./pages/CompleteProfile";
 import KYC from "./pages/KYC";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -25,6 +26,9 @@ import FundNGNWallet from "./pages/FundNGNWallet";
 import DepositUSDWallet from "./pages/DepositUSDWallet";
 import PaymentGateway from "./pages/PaymentGateway";
 import InvestStocks from "./pages/InvestStocks";
+import DashboardLayout from "./components/dashboard/DashboardLayout";
+import Overview from "./pages/Dashboard/Overview";
+import KYCManagement from "./pages/Dashboard/KYCManagement";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +46,7 @@ const App = () => (
           {/* Auth Routes */}
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/complete-profile" element={<CompleteProfile />} />
           <Route path="/kyc" element={<KYC />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -49,6 +54,15 @@ const App = () => (
           <Route path="/face-id" element={<FaceID />} />
 
           {/* App Routes */}
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<Overview />} />
+            <Route path="/dashboard/kyc" element={<KYCManagement />} />
+            <Route path="/dashboard/users" element={<div>User Management</div>} />
+            <Route path="/dashboard/transactions" element={<div>Transactions</div>} />
+            <Route path="/dashboard/investments" element={<div>Investment Products</div>} />
+            <Route path="/dashboard/portfolio" element={<div>Portfolio Management</div>} />
+          </Route>
+
           <Route path="/home" element={<Home />} />
           <Route path="/fund-ngn-wallet" element={<FundNGNWallet />} />
           <Route path="/deposit-usd-wallet" element={<DepositUSDWallet />} />
