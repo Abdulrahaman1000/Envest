@@ -1,14 +1,18 @@
 import { Card } from '@/components/ui/card';
-import mockData from '@/lib/api/mockData.json';
+import { DashboardData } from '@/lib/api/dashboardService';
 
-const stats = [
-    { label: 'Total users', value: mockData.total_users, className: 'bg-[#0A0E1A] text-white' },
-    { label: 'Pending KYC', value: mockData.kyc_pending },
-    { label: 'Available investment products', value: mockData.investment_products_count },
-    { label: 'Recent transactions', value: mockData.recent_transactions_count },
-];
+interface StatCardsProps {
+    data?: DashboardData;
+}
 
-export function StatCards() {
+export function StatCards({ data }: StatCardsProps) {
+    const stats = [
+        { label: 'Total users', value: data?.['Total Users'] ?? 0, className: 'bg-[#0A0E1A] text-white' },
+        { label: 'Pending KYC', value: data?.['Pending KYC'] ?? 0 },
+        { label: 'Available investment products', value: data?.['Available Products'] ?? 0 },
+        { label: 'Recent transactions', value: data?.['Recent Transactions'] ?? 0 },
+    ];
+
     return (
         <div className="grid grid-cols-4 gap-6">
             {stats.map((stat) => (

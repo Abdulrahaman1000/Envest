@@ -8,23 +8,23 @@ import {
     Tooltip,
     ResponsiveContainer
 } from 'recharts';
+import { UserRegistrationStatus } from '@/lib/api/dashboardService';
+import { useMemo } from 'react';
 
-const data = [
-    { month: 'Jan', count: 300 },
-    { month: 'Feb', count: 150 },
-    { month: 'Mar', count: 400 },
-    { month: 'Apr', count: 250 },
-    { month: 'May', count: 320 },
-    { month: 'Jun', count: 280 },
-    { month: 'Jul', count: 260 },
-    { month: 'Aug', count: 1020 },
-    { month: 'Sep', count: 350 },
-    { month: 'Oct', count: 220 },
-    { month: 'Nov', count: 310 },
-    { month: 'Dec', count: 240 },
-];
+interface RegistrationChartProps {
+    data?: UserRegistrationStatus;
+}
 
-export function RegistrationChart() {
+export function RegistrationChart({ data }: RegistrationChartProps) {
+    const chartData = useMemo(() => {
+        if (!data) return [];
+
+        return data.labels.map((label, index) => ({
+            month: label,
+            count: data.values[index] || 0
+        }));
+    }, [data]);
+
     return (
         <Card className="p-8 border-slate-100 shadow-sm rounded-3xl bg-white col-span-2">
             <div className="flex items-center justify-between mb-8">
@@ -33,7 +33,7 @@ export function RegistrationChart() {
 
             <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data}>
+                    <BarChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
                         <XAxis
                             dataKey="month"

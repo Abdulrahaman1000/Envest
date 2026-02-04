@@ -1,3 +1,4 @@
+import { apiClient } from './client';
 import mockData from './mockData.json';
 
 const STORAGE_KEY = 'envest_user_session';
@@ -16,20 +17,43 @@ initializeDB();
 
 export const authService = {
     login: async (credentials: any) => {
-        // Simulate API delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        try {
+            // Real API call
+            const payload = {
+                username: credentials.username || credentials.email,
+                password: credentials.password
+            };
+            const response = await apiClient<any>('POST', 'login', payload);
 
-        const users = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
-        const user = users.find(
-            (u: any) => u.email === credentials.email && u.password === credentials.password
-        );
+            // Check for success based on API response structure
+            if (response.code === 200 && response.status && response.data) {
+                const apiUser = response.data;
 
-        if (user) {
-            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-            return user;
+                // Map API user to application User interface
+                // Note: The API returns { user_id, username, email, name, image, role, token }
+                // The app expects { id, email, firstName, lastName, ... }
+                const user = {
+                    id: apiUser.user_id,
+                    email: apiUser.email,
+                    firstName: apiUser.name?.split(' ')[0] || apiUser.username,
+                    lastName: apiUser.name?.split(' ').slice(1).join(' ') || '',
+                    phone: apiUser.phone || '', // Satisfy User interface
+                    role: apiUser.role,
+                    image: apiUser.image,
+                    // Add other fields as necessary or leave undefined if not provided by API
+                };
+
+                // Save user session (token is already handled by interceptor)
+                sessionStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+
+                return user;
+            } else {
+                throw new Error(response.message || 'Login failed');
+            }
+        } catch (error: any) {
+            console.error('Login error:', error);
+            throw error;
         }
-
-        throw new Error('Invalid email or password');
     },
 
     signUp: async (data: any) => {
@@ -82,5 +106,6 @@ export const authService = {
 
     logout: () => {
         sessionStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('envest_auth_token'); // Clear token on logout
     }
 };
