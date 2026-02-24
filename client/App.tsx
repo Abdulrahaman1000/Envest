@@ -29,6 +29,22 @@ import InvestStocks from "./pages/InvestStocks";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Overview from "./pages/Dashboard/Overview";
 import KYCManagement from "./pages/Dashboard/KYCManagement";
+import UserManagement from "./pages/Dashboard/UserManagement";
+import UserDetail from "./pages/Dashboard/UserDetail";
+import Transactions from "./pages/Dashboard/Transactions";
+import TransactionDetail from "./pages/Dashboard/TransactionDetail";
+import TransactionFilter from "./pages/Dashboard/TransactionFilter";
+import InvestmentProducts from "./pages/Dashboard/InvestmentProducts";
+import StockDetail from "./pages/Dashboard/StockDetail";
+import AddStock from "./pages/Dashboard/AddStock";
+import PortfolioManagement from "./pages/Dashboard/PortfolioManagement";
+import PortfolioOverview from "./pages/Dashboard/PortfolioOverview";
+import InvestmentBreakdown from "./pages/Dashboard/InvestmentBreakdown";
+import PortfolioTransactionDetail from "./pages/Dashboard/PortfolioTransactionDetail";
+import InvestmentNoteBill from "./pages/Dashboard/InvestmentNoteBill";
+import Learn from "./pages/Dashboard/Learn";
+import Support from "./pages/Dashboard/Support";
+import Settings from "./pages/Dashboard/Settings";
 
 const queryClient = new QueryClient();
 
@@ -53,16 +69,40 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/face-id" element={<FaceID />} />
 
-          {/* App Routes */}
+          {/* Dashboard Routes */}
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Overview />} />
             <Route path="/dashboard/kyc" element={<KYCManagement />} />
-            <Route path="/dashboard/users" element={<div>User Management</div>} />
-            <Route path="/dashboard/transactions" element={<div>Transactions</div>} />
-            <Route path="/dashboard/investments" element={<div>Investment Products</div>} />
-            <Route path="/dashboard/portfolio" element={<div>Portfolio Management</div>} />
+
+            {/* Users */}
+            <Route path="/dashboard/users" element={<UserManagement />} />
+            <Route path="/dashboard/users/:userId" element={<UserDetail />} />
+
+            {/* Transactions */}
+            <Route path="/dashboard/transactions" element={<Transactions />} />
+            <Route path="/dashboard/transactions/filter" element={<TransactionFilter />} />
+            <Route path="/dashboard/transactions/:transactionId" element={<TransactionDetail />} />
+
+            {/* Investment Products */}
+            <Route path="/dashboard/investments" element={<InvestmentProducts />} />
+            <Route path="/dashboard/investments/:stockId" element={<StockDetail />} />
+            <Route path="/dashboard/investments/:stockId/add" element={<AddStock />} />
+            <Route path="/dashboard/investments/:stockId/edit" element={<AddStock />} />
+
+            {/* Portfolio Management */}
+            <Route path="/dashboard/portfolio" element={<PortfolioManagement />} />
+            <Route path="/dashboard/portfolio/transaction/:txId" element={<PortfolioTransactionDetail />} />
+            <Route path="/dashboard/portfolio/:userId" element={<PortfolioOverview />} />
+            <Route path="/dashboard/portfolio/:userId/investment/:investmentId" element={<InvestmentBreakdown />} />
+            <Route path="/dashboard/portfolio/:userId/investment/:investmentId/bill" element={<InvestmentNoteBill />} />
+
+            {/* Administration */}
+            <Route path="/dashboard/learn" element={<Learn />} />
+             <Route path="/dashboard/support" element={<Support />}/>
+            <Route path="/dashboard/settings" element={<Settings />} /> 
           </Route>
 
+          {/* App Routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/fund-ngn-wallet" element={<FundNGNWallet />} />
           <Route path="/deposit-usd-wallet" element={<DepositUSDWallet />} />
