@@ -35,6 +35,7 @@ export default function CreateAccount() {
     <AuthLayout
       title="Sign up"
       subtitle="Please fill the forms below to create an account."
+      showLogo
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormInput
@@ -48,7 +49,7 @@ export default function CreateAccount() {
         <FormInput
           label="Password"
           type="password"
-          placeholder="******"
+          placeholder="••••••"
           required
           {...register('password')}
           error={errors.password?.message}
@@ -57,7 +58,7 @@ export default function CreateAccount() {
         <FormInput
           label="Confirm Password"
           type="password"
-          placeholder="******"
+          placeholder="••••••"
           required
           {...register('confirmPassword')}
           error={errors.confirmPassword?.message}
@@ -65,25 +66,25 @@ export default function CreateAccount() {
 
         <Button
           type="submit"
-          className="w-full bg-[#B8860B] hover:bg-[#966F09] text-white h-12 rounded-xl text-lg font-semibold mt-2"
+          className="w-full bg-[#B8860B] hover:bg-[#966F09] text-white h-12 rounded-xl text-base font-semibold mt-2"
         >
           Sign up
         </Button>
 
-        <div className="relative my-6">
+        <div className="relative my-5">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-slate-200"></span>
+            <span className="w-full border-t border-slate-200" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 text-slate-500 font-medium">Or continue with</span>
+            <span className="bg-white px-3 text-slate-400 font-medium">Or continue with</span>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <Button
             type="button"
             variant="outline"
-            className="h-12 border-slate-200 rounded-xl flex items-center gap-2 font-semibold text-slate-700"
+            className="h-12 border-slate-200 rounded-xl flex items-center justify-center gap-2 font-semibold text-slate-700 hover:bg-slate-50"
           >
             <img src="/google.svg" alt="Google" className="w-5 h-5" />
             Google
@@ -91,25 +92,23 @@ export default function CreateAccount() {
           <Button
             type="button"
             variant="outline"
-            className="h-12 border-slate-200 rounded-xl flex items-center gap-2 font-semibold text-slate-700"
+            className="h-12 border-slate-200 rounded-xl flex items-center justify-center gap-2 font-semibold text-slate-700 hover:bg-slate-50"
           >
             <img src="/apple.svg" alt="Apple" className="w-5 h-5" />
             Apple
           </Button>
         </div>
 
-        <div className="text-center mt-6">
-          <p className="text-slate-500 text-sm font-medium">
-            Have an account?{' '}
-            <button
-              type="button"
-              onClick={() => navigate('/login')}
-              className="text-[#B8860B] hover:underline font-bold"
-            >
-              Login
-            </button>
-          </p>
-        </div>
+        <p className="text-center text-slate-500 text-sm font-medium mt-4">
+          Have an account?{' '}
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="text-[#B8860B] hover:underline font-bold"
+          >
+            Login
+          </button>
+        </p>
       </form>
     </AuthLayout>
   );
