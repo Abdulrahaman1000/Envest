@@ -1,41 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, ChevronUp, Calendar, TrendingUp, TrendingDown, Home } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { dashboardService, FetchSingleClientResponse } from '@/lib/api/dashboardService';
+import { toast } from 'sonner';
 
-type UserStatus = 'Active' | 'Suspended' | 'Deactivated';
+
 type ModalType = 'suspend' | 'unsuspend' | 'delete' | null;
 type TabType = 'applicant' | 'transactions' | 'investments';
 
-const MOCK_USER = {
-    id: '000001',
-    name: 'Chia Cynthia Nguevese',
-    firstName: 'Cynthia',
-    lastName: 'Chia',
-    phone: '07044809821',
-    email: 'cynthianguevese@gmail.com',
-    status: 'Active' as UserStatus,
-    dateJoined: 'May 12, 2025',
-    lastLogin: 'May 12, 2025',
-    avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=200&h=200&fit=crop&crop=face',
-};
+
 
 const MOCK_TRANSACTIONS = [
-    { date: 'Yesterday', items: [
-        { type: 'withdrawal', label: 'Cash withdrawal', sub: 'Withdrawal made', amount: '-₦0.00' },
-        { type: 'credit', label: 'Transfer received', sub: 'Transfer from Chia Ngue...', amount: '+₦0.00' },
-    ]},
-    { date: '25-Jul-2025', items: [
-        { type: 'credit', label: 'Interest earned', sub: 'Dangote stock', amount: '+₦0.00' },
-    ]},
-    { date: '11-Jul-2025', items: [
-        { type: 'withdrawal', label: 'Cash withdrawal', sub: 'Withdrawal made', amount: '-₦0.00' },
-    ]},
-    { date: '16-May-2025', items: [
-        { type: 'credit', label: 'Interest earned', sub: 'Dangote stock', amount: '+₦0.00' },
-        { type: 'credit', label: 'Interest earned', sub: 'Dangote stock', amount: '+₦0.00' },
-        { type: 'credit', label: 'Interest earned', sub: 'Dangote stock', amount: '+₦0.00' },
-    ]},
+    {
+        date: 'Yesterday', items: [
+            { type: 'withdrawal', label: 'Cash withdrawal', sub: 'Withdrawal made', amount: '-₦0.00' },
+            { type: 'credit', label: 'Transfer received', sub: 'Transfer from Chia Ngue...', amount: '+₦0.00' },
+        ]
+    },
+    {
+        date: '25-Jul-2025', items: [
+            { type: 'credit', label: 'Interest earned', sub: 'Dangote stock', amount: '+₦0.00' },
+        ]
+    },
+    {
+        date: '11-Jul-2025', items: [
+            { type: 'withdrawal', label: 'Cash withdrawal', sub: 'Withdrawal made', amount: '-₦0.00' },
+        ]
+    },
+    {
+        date: '16-May-2025', items: [
+            { type: 'credit', label: 'Interest earned', sub: 'Dangote stock', amount: '+₦0.00' },
+            { type: 'credit', label: 'Interest earned', sub: 'Dangote stock', amount: '+₦0.00' },
+            { type: 'credit', label: 'Interest earned', sub: 'Dangote stock', amount: '+₦0.00' },
+        ]
+    },
 ];
 
 const MOCK_INVESTMENTS = {
@@ -111,7 +110,11 @@ function ConfirmModal({ type, onConfirm, onCancel }: { type: ModalType; onConfir
 }
 
 // ─── Tab: Applicant Details ───────────────────────────────────────────────────
-function ApplicantDetails() {
+interface ApplicantDetailsProps {
+    data: FetchSingleClientResponse['data'];
+}
+
+function ApplicantDetails({ data }: ApplicantDetailsProps) {
     return (
         <div className="space-y-3">
             {/* Onboarding Info */}
@@ -122,48 +125,53 @@ function ApplicantDetails() {
                 </div>
                 <div className="px-5 pb-5 border-t border-slate-100">
                     <InfoGrid items={[
-                        { label: 'First name', value: 'Cynthia' },
-                        { label: 'Last name', value: 'Chia' },
-                        { label: 'Phone Number', value: '07044809821' },
-                        { label: 'Email Address', value: 'cynthianguevese@gmail.com' },
+                        { label: 'First name', value: data.basic_info.first_name },
+                        { label: 'Last name', value: data.basic_info.last_name },
+                        { label: 'Phone Number', value: data.basic_info.phone },
+                        { label: 'Email Address', value: data.basic_info.email },
                     ]} />
                 </div>
             </div>
             <AccordionSection title="Identity Verification">
                 <InfoGrid items={[
-                    { label: 'ID Type', value: 'National ID' },
-                    { label: 'ID Number', value: 'NIN-123456789' },
-                    { label: 'BVN', value: '22012345678' },
-                    { label: 'Verification Status', value: 'Verified' },
+                    { label: 'NIN', value: data.identity_verification.nin },
+                    { label: 'BVN', value: data.identity_verification.bvn },
+                    { label: 'BVN Verified', value: data.identity_verification.bvn_verified ? 'Yes' : 'No' },
+                    { label: 'NIN Verified', value: data.identity_verification.nin_verified ? 'Yes' : 'No' },
                 ]} />
             </AccordionSection>
             <AccordionSection title="Bank details">
-                <InfoGrid items={[
-                    { label: 'Bank Name', value: 'First Bank' },
-                    { label: 'Account Number', value: '3012345678' },
-                    { label: 'Account Name', value: 'Chia Cynthia Nguevese' },
-                ]} />
+                {data.identity_verification.banks.map((bank, i) => (
+                    <div key={i} className={i > 0 ? "mt-4 pt-4 border-t border-slate-50" : ""}>
+                        <InfoGrid items={[
+                            { label: 'Bank Name', value: bank.bankName },
+                            { label: 'Account Number', value: bank.accountNumber },
+                            { label: 'Account Name', value: bank.accountName },
+                        ]} />
+                    </div>
+                ))}
             </AccordionSection>
-            <AccordionSection title="Next of Kin">
+            <AccordionSection title="Personal Details">
                 <InfoGrid items={[
-                    { label: 'Full Name', value: 'John Chia' },
-                    { label: 'Relationship', value: 'Brother' },
-                    { label: 'Phone', value: '08012345678' },
-                ]} />
-            </AccordionSection>
-            <AccordionSection title="Address">
-                <InfoGrid items={[
-                    { label: 'Street Address', value: '12 Broad Street' },
-                    { label: 'City', value: 'Lagos' },
-                    { label: 'State', value: 'Lagos State' },
-                    { label: 'Country', value: 'Nigeria' },
+                    { label: 'Mother\'s Maiden Name', value: data.personal_details.mom_maiden },
+                    { label: 'Next of Kin Name', value: `${data.personal_details.nok_fname} ${data.personal_details.nok_lname}` },
+                    { label: 'Next of Kin Phone', value: data.personal_details.nok_phone },
+                    { label: 'Address', value: data.personal_details.address },
+                    { label: 'State of Residence', value: data.personal_details.state_residence },
+                    { label: 'State of Origin', value: data.personal_details.state_origin },
+                    { label: 'LGA of Origin', value: data.personal_details.lga_origin },
                 ]} />
             </AccordionSection>
             <AccordionSection title="Investment Profile">
                 <InfoGrid items={[
-                    { label: 'Risk Tolerance', value: 'Moderate' },
-                    { label: 'Investment Goal', value: 'Wealth Growth' },
-                    { label: 'Investment Horizon', value: '5-10 years' },
+                    { label: 'Investment Goals', value: data.investment_profile.investment_goals },
+                    { label: 'Experience', value: data.investment_profile.experience },
+                    { label: 'Risk Tolerance', value: data.investment_profile.risk_tolerance },
+                    { label: 'Source of Wealth', value: data.investment_profile.source_of_wealth },
+                    { label: 'Liquid Assets', value: data.investment_profile.liquid },
+                    { label: 'Yearly Income', value: data.investment_profile.yearly_income },
+                    { label: 'Net Worth', value: data.investment_profile.net_worth },
+                    { label: 'Job', value: data.investment_profile.job },
                 ]} />
             </AccordionSection>
         </div>
@@ -171,7 +179,25 @@ function ApplicantDetails() {
 }
 
 // ─── Tab: Transaction History ─────────────────────────────────────────────────
-function TransactionHistory() {
+interface TransactionHistoryProps {
+    transactions: {
+        id: number;
+        tnx_id: string;
+        date: string;
+        type: string;
+        amount: string;
+        currency: string;
+    }[];
+}
+
+function TransactionHistory({ transactions }: TransactionHistoryProps) {
+    // Group transactions by date
+    const groups: { [key: string]: typeof transactions } = {};
+    transactions.forEach(tx => {
+        if (!groups[tx.date]) groups[tx.date] = [];
+        groups[tx.date].push(tx);
+    });
+
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -180,41 +206,69 @@ function TransactionHistory() {
                     <Calendar size={16} />
                 </button>
             </div>
-            {MOCK_TRANSACTIONS.map((group) => (
-                <div key={group.date} className="space-y-3">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{group.date}</p>
-                    {group.items.map((tx, i) => (
-                        <div key={i} className="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
-                            <div className="flex items-center gap-3">
-                                <div className={cn(
-                                    "w-8 h-8 rounded-full flex items-center justify-center",
-                                    tx.type === 'credit' ? "bg-emerald-50" : "bg-red-50"
-                                )}>
-                                    {tx.type === 'credit'
-                                        ? <TrendingDown size={14} className="text-emerald-500" />
-                                        : <TrendingUp size={14} className="text-red-400" />
-                                    }
+            {Object.entries(groups).length === 0 ? (
+                <div className="text-center py-10 text-slate-400 text-sm">No transaction history found</div>
+            ) : (
+                Object.entries(groups).map(([date, items]) => (
+                    <div key={date} className="space-y-3">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{date}</p>
+                        {items.map((tx, i) => (
+                            <div key={i} className="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
+                                <div className="flex items-center gap-3">
+                                    <div className={cn(
+                                        "w-8 h-8 rounded-full flex items-center justify-center",
+                                        tx.type?.toLowerCase() === 'credit' ? "bg-emerald-50" : "bg-red-50"
+                                    )}>
+                                        {tx.type?.toLowerCase() === 'credit'
+                                            ? <TrendingDown size={14} className="text-emerald-500" />
+                                            : <TrendingUp size={14} className="text-red-400" />
+                                        }
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-slate-800">{tx.tnx_id}</p>
+                                        <p className="text-xs text-slate-400">{tx.type}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-slate-800">{tx.label}</p>
-                                    <p className="text-xs text-slate-400">{tx.sub}</p>
-                                </div>
+                                <span className={cn(
+                                    "text-sm font-bold",
+                                    tx.type?.toLowerCase() === 'credit' ? "text-emerald-500" : "text-red-400"
+                                )}>{new Intl.NumberFormat('en-NG', { style: 'currency', currency: tx.currency || 'NGN' }).format(parseFloat(tx.amount))}</span>
                             </div>
-                            <span className={cn(
-                                "text-sm font-bold",
-                                tx.type === 'credit' ? "text-emerald-500" : "text-red-400"
-                            )}>{tx.amount}</span>
-                        </div>
-                    ))}
-                </div>
-            ))}
+                        ))}
+                    </div>
+                ))
+            )}
         </div>
     );
 }
 
 // ─── Tab: Investments ─────────────────────────────────────────────────────────
-function Investments() {
-    const inv = MOCK_INVESTMENTS;
+interface InvestmentsProps {
+    breakdown: {
+        investment_id: number;
+        product_name: string;
+        amount_paid: number;
+        current_value: number;
+        roi_percentage: string;
+        maturity_date: string;
+        status: string;
+        currency: string;
+    }[];
+}
+
+function Investments({ breakdown }: InvestmentsProps) {
+    const formatCurrency = (amount: number, currency: string) => {
+        return new Intl.NumberFormat('en-NG', {
+            style: 'currency',
+            currency: currency || 'NGN',
+            minimumFractionDigits: 2
+        }).format(amount);
+    };
+
+    const totalInvested = breakdown.reduce((acc, curr) => acc + curr.amount_paid, 0);
+    const totalCurrentValue = breakdown.reduce((acc, curr) => acc + curr.current_value, 0);
+    const totalReturns = totalCurrentValue - totalInvested;
+
     return (
         <div className="space-y-5">
             {/* Overview stats */}
@@ -222,10 +276,10 @@ function Investments() {
                 <h3 className="text-sm font-bold text-slate-700 mb-4">Overview</h3>
                 <div className="grid grid-cols-4 divide-x divide-slate-100">
                     {[
-                        { label: 'Total Portfolio Value', value: inv.totalPortfolio },
-                        { label: 'Active investments', value: inv.activeInvestments },
-                        { label: 'Total Returns Earned', value: inv.totalReturns },
-                        { label: 'Pending Maturities', value: inv.pendingMaturities },
+                        { label: 'Total Portfolio Value', value: formatCurrency(totalCurrentValue, breakdown[0]?.currency) },
+                        { label: 'Active investments', value: breakdown.filter(i => i.status === 'active').length },
+                        { label: 'Total Returns Earned', value: formatCurrency(totalReturns, breakdown[0]?.currency) },
+                        { label: 'Pending Maturities', value: breakdown.filter(i => i.status === 'pending').length },
                     ].map(({ label, value }) => (
                         <div key={label} className="px-4 first:pl-0 last:pr-0">
                             <p className="text-xs text-slate-400 mb-1">{label}</p>
@@ -243,24 +297,28 @@ function Investments() {
                 <table className="w-full">
                     <thead>
                         <tr className="border-b border-slate-50">
-                            {['S/N', 'Investment product', 'Amount Invested', 'Current Value', 'Status', 'Maturity date'].map(col => (
+                            {['S/N', 'Investment product', 'Amount Invested', 'Current Value', 'ROI', 'Maturity date'].map(col => (
                                 <th key={col} className="px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider">{col}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {inv.breakdown.map((row) => (
-                            <tr key={row.sn} className="hover:bg-slate-50 transition-colors">
-                                <td className="px-5 py-3.5 text-sm text-slate-400">{row.sn}</td>
-                                <td className="px-5 py-3.5 text-sm font-medium text-slate-800">{row.product}</td>
-                                <td className="px-5 py-3.5 text-sm text-slate-600">{row.invested}</td>
-                                <td className="px-5 py-3.5 text-sm font-semibold text-slate-900">{row.current}</td>
-                                <td className="px-5 py-3.5">
-                                    <span className="text-xs font-semibold text-emerald-500">{row.status}</span>
-                                </td>
-                                <td className="px-5 py-3.5 text-sm text-slate-500">{row.maturity}</td>
+                        {breakdown.length === 0 ? (
+                            <tr>
+                                <td colSpan={6} className="px-5 py-10 text-center text-slate-400 text-sm">No investment data found</td>
                             </tr>
-                        ))}
+                        ) : (
+                            breakdown.map((row, i) => (
+                                <tr key={row.investment_id} className="hover:bg-slate-50 transition-colors">
+                                    <td className="px-5 py-3.5 text-sm text-slate-400">{i + 1}</td>
+                                    <td className="px-5 py-3.5 text-sm font-medium text-slate-800">{row.product_name}</td>
+                                    <td className="px-5 py-3.5 text-sm text-slate-600">{formatCurrency(row.amount_paid, row.currency)}</td>
+                                    <td className="px-5 py-3.5 text-sm font-semibold text-slate-900">{formatCurrency(row.current_value, row.currency)}</td>
+                                    <td className="px-5 py-3.5 text-sm text-slate-600">{row.roi_percentage}</td>
+                                    <td className="px-5 py-3.5 text-sm text-slate-500 whitespace-nowrap">{row.maturity_date}</td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -273,9 +331,50 @@ export default function UserDetail() {
     const navigate = useNavigate();
     const { userId } = useParams();
     const [activeTab, setActiveTab] = useState<TabType>('applicant');
-    const [userStatus, setUserStatus] = useState<UserStatus>(MOCK_USER.status);
+    const [userData, setUserData] = useState<FetchSingleClientResponse['data'] | null>(null);
+    const [portfolioData, setPortfolioData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [loadingPortfolio, setLoadingPortfolio] = useState(false);
     const [modal, setModal] = useState<ModalType>(null);
     const [actionsOpen, setActionsOpen] = useState(false);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            if (!userId) return;
+            setLoading(true);
+            try {
+                const response = await dashboardService.fetchSingleClient({ id: userId });
+                if (response.status) {
+                    setUserData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching user detail:', error);
+                toast.error('Failed to load user details');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, [userId]);
+
+    useEffect(() => {
+        const fetchPortfolio = async () => {
+            if (!userId || activeTab === 'applicant') return;
+            setLoadingPortfolio(true);
+            try {
+                const response = await dashboardService.getSingleUserPortfolio({ userID: userId });
+                if (response.status) {
+                    setPortfolioData(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching portfolio data:', error);
+                toast.error('Failed to load portfolio details');
+            } finally {
+                setLoadingPortfolio(false);
+            }
+        };
+        fetchPortfolio();
+    }, [userId, activeTab]);
 
     const handleAction = (action: 'suspend' | 'unsuspend' | 'delete') => {
         setActionsOpen(false);
@@ -283,11 +382,17 @@ export default function UserDetail() {
     };
 
     const handleConfirm = () => {
-        if (modal === 'suspend') setUserStatus('Suspended');
-        if (modal === 'unsuspend') setUserStatus('Active');
-        if (modal === 'delete') navigate('/dashboard/users');
+        toast.info(`Action ${modal} triggered`);
         setModal(null);
     };
+
+    if (loading) {
+        return <div className="flex items-center justify-center min-h-[400px]">Loading...</div>;
+    }
+
+    if (!userData) {
+        return <div className="text-center py-10">User not found</div>;
+    }
 
     const tabs: { key: TabType; label: string }[] = [
         { key: 'applicant', label: 'Applicant details' },
@@ -311,7 +416,7 @@ export default function UserDetail() {
                     User Management
                 </button>
                 <span className="text-slate-300">/</span>
-                <span className="text-slate-900 font-semibold">{MOCK_USER.name}</span>
+                <span className="text-slate-900 font-semibold">{userData.basic_info.full_name}</span>
             </div>
 
             {/* Tabs */}
@@ -337,39 +442,37 @@ export default function UserDetail() {
                 {/* Left: User Card */}
                 <div className="w-64 shrink-0 space-y-4">
                     <div className="bg-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm">
-                        <img
-                            src={MOCK_USER.avatar}
-                            alt={MOCK_USER.name}
-                            className="w-20 h-20 rounded-full object-cover mx-auto mb-3 ring-4 ring-slate-50"
-                        />
-                        <h2 className="text-sm font-bold text-slate-900">{MOCK_USER.name}</h2>
-                        <p className="text-xs text-slate-400 mt-0.5 font-mono">{MOCK_USER.id}</p>
+                        <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3 ring-4 ring-slate-50 text-slate-400 text-2xl font-bold">
+                            {userData.basic_info.full_name.charAt(0)}
+                        </div>
+                        <h2 className="text-sm font-bold text-slate-900">{userData.basic_info.full_name}</h2>
+                        <p className="text-xs text-slate-400 mt-0.5 font-mono">{userData.basic_info.clientID}</p>
 
                         <div className="mt-4 pt-4 border-t border-slate-100 space-y-3 text-left">
                             <div className="flex items-center justify-between">
                                 <span className="text-xs text-slate-400">Status</span>
                                 <span className={cn(
                                     "text-xs font-bold flex items-center gap-1",
-                                    userStatus === 'Active' && "text-emerald-500",
-                                    userStatus === 'Suspended' && "text-yellow-600",
-                                    userStatus === 'Deactivated' && "text-red-500",
+                                    userData.basic_info.account_status === 'Active' && "text-emerald-500",
+                                    userData.basic_info.account_status === 'Suspended' && "text-yellow-600",
+                                    userData.basic_info.account_status === 'Deactivated' && "text-red-500",
                                 )}>
                                     <span className={cn(
                                         "w-1.5 h-1.5 rounded-full",
-                                        userStatus === 'Active' && "bg-emerald-500",
-                                        userStatus === 'Suspended' && "bg-yellow-500",
-                                        userStatus === 'Deactivated' && "bg-red-500",
+                                        userData.basic_info.account_status === 'Active' && "bg-emerald-500",
+                                        userData.basic_info.account_status === 'Suspended' && "bg-yellow-500",
+                                        userData.basic_info.account_status === 'Deactivated' && "bg-red-500",
                                     )} />
-                                    {userStatus}
+                                    {userData.basic_info.account_status}
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-xs text-slate-400">Date joined</span>
-                                <span className="text-xs font-semibold text-slate-700">{MOCK_USER.dateJoined}</span>
+                                <span className="text-xs font-semibold text-slate-700">{userData.basic_info.date_joined}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-xs text-slate-400">Last login</span>
-                                <span className="text-xs font-semibold text-slate-700">{MOCK_USER.lastLogin}</span>
+                                <span className="text-xs font-semibold text-slate-700">{userData.basic_info.last_login}</span>
                             </div>
                         </div>
                     </div>
@@ -410,9 +513,13 @@ export default function UserDetail() {
 
                 {/* Right: Tab Content */}
                 <div className="flex-1 min-w-0 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
-                    {activeTab === 'applicant' && <ApplicantDetails />}
-                    {activeTab === 'transactions' && <TransactionHistory />}
-                    {activeTab === 'investments' && <Investments />}
+                    {activeTab === 'applicant' && <ApplicantDetails data={userData} />}
+                    {activeTab === 'transactions' && (
+                        loadingPortfolio ? <div>Loading transactions...</div> : <TransactionHistory transactions={portfolioData?.transaction_history || []} />
+                    )}
+                    {activeTab === 'investments' && (
+                        loadingPortfolio ? <div>Loading investments...</div> : <Investments breakdown={portfolioData?.investment_breakdown || []} />
+                    )}
                 </div>
             </div>
 

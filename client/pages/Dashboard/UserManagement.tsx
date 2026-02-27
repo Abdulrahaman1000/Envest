@@ -1,32 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { dashboardService, Client } from '@/lib/api/dashboardService';
+import { toast } from 'sonner';
 
 type UserStatus = 'Active' | 'Suspended' | 'Deactivated';
 
-interface AdminUser {
-    id: string;
-    sn: number;
-    name: string;
-    email: string;
-    phone: string;
-    status: UserStatus;
-    lastLogin: string;
-}
 
-const MOCK_USERS: AdminUser[] = [
-    { id: '000001', sn: 1, name: 'Chia Cynthia', email: 'cynthiachia@gmil.com', phone: '07063044909', status: 'Active', lastLogin: 'Jan 1, 2025' },
-    { id: '000002', sn: 2, name: 'Marvin McKinney', email: 'jackson.graham@example.com', phone: '(239) 555-0108', status: 'Suspended', lastLogin: 'Jan 1, 2025' },
-    { id: '000003', sn: 3, name: 'Cody Fisher', email: 'bill.sanders@example.com', phone: '(225) 555-0118', status: 'Deactivated', lastLogin: 'Jan 1, 2025' },
-    { id: '000004', sn: 4, name: 'Kathryn Murphy', email: 'alma.lawson@example.com', phone: '(207) 555-0119', status: 'Suspended', lastLogin: 'Jan 1, 2025' },
-    { id: '000005', sn: 5, name: 'Robert Fox', email: 'tanya.hill@example.com', phone: '(229) 555-0109', status: 'Active', lastLogin: 'Jan 1, 2025' },
-    { id: '000006', sn: 6, name: 'Brooklyn Simmons', email: 'michael.mitc@example.com', phone: '(629) 555-0129', status: 'Deactivated', lastLogin: 'Jan 1, 2025' },
-    { id: '000007', sn: 7, name: 'Jenny Wilson', email: 'nathan.roberts@example.com', phone: '(406) 555-0120', status: 'Active', lastLogin: 'Jan 1, 2025' },
-    { id: '000008', sn: 8, name: 'Courtney Henry', email: 'tim.jennings@example.com', phone: '(907) 555-0101', status: 'Active', lastLogin: 'Jan 1, 2025' },
-    { id: '000009', sn: 9, name: 'Jane Cooper', email: 'curtis.weaver@example.com', phone: '(303) 555-0105', status: 'Active', lastLogin: 'Jan 1, 2025' },
-    { id: '000010', sn: 10, name: 'Wade Warren', email: 'georgia.young@example.com', phone: '(671) 555-0110', status: 'Active', lastLogin: 'Jan 1, 2025' },
-];
 
 type ModalType = 'suspend' | 'unsuspend' | 'delete' | null;
 
@@ -41,17 +22,17 @@ function ConfirmModal({ type, userName, onConfirm, onCancel }: ConfirmModalProps
     const config = {
         suspend: {
             title: 'Suspend user?',
-            message: `Are you sure you want to suspend this user?`,
+            message: `Are you sure you want to suspend ${userName}?`,
             confirmText: 'Yes, suspend',
         },
         unsuspend: {
             title: 'Un-suspend user',
-            message: `Are you sure you want to un-suspend this user?`,
+            message: `Are you sure you want to un-suspend ${userName}?`,
             confirmText: 'Yes, un-suspend',
         },
         delete: {
             title: 'Delete account',
-            message: `Are you sure you want to delete this user?`,
+            message: `Are you sure you want to delete ${userName}?`,
             confirmText: 'Yes, delete',
         },
     };
@@ -103,8 +84,8 @@ function ActionsDropdown({
     user,
     onAction,
 }: {
-    user: AdminUser;
-    onAction: (action: 'view' | 'suspend' | 'unsuspend' | 'delete', user: AdminUser) => void;
+    user: Client;
+    onAction: (action: 'view' | 'suspend' | 'unsuspend' | 'delete', user: Client) => void;
 }) {
     const [open, setOpen] = useState(false);
 
@@ -152,23 +133,47 @@ function ActionsDropdown({
 
 export default function UserManagement() {
     const navigate = useNavigate();
-    const [users, setUsers] = useState<AdminUser[]>(MOCK_USERS);
+    const [users, setUsers] = useState<Client[]>([]);
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [modal, setModal] = useState<{ type: ModalType; user: AdminUser | null }>({ type: null, user: null });
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalUsers, setTotalUsers] = useState(0);
+    const [modal, setModal] = useState<{ type: ModalType; user: Client | null }>({ type: null, user: null });
 
-    const TOTAL_USERS = 1500;
-    const TOTAL_PAGES = 30;
+    const fetchUsers = async (page: number) => {
+        setLoading(true);
+        try {
+            const response = await dashboardService.fetchClients({
+                page,
+                limit: 10,
+            });
+            if (response.status) {
+                setUsers(response.data.users);
+                setTotalPages(response.data.total_pages);
+                setTotalUsers(response.data.total);
+            }
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            toast.error('Failed to fetch users');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUsers(currentPage);
+    }, [currentPage]);
 
     const filtered = users.filter(u =>
         u.name.toLowerCase().includes(search.toLowerCase()) ||
         u.email.toLowerCase().includes(search.toLowerCase()) ||
-        u.id.includes(search)
+        u.clientID.includes(search)
     );
 
-    const handleAction = (action: 'view' | 'suspend' | 'unsuspend' | 'delete', user: AdminUser) => {
+    const handleAction = (action: 'view' | 'suspend' | 'unsuspend' | 'delete', user: Client) => {
         if (action === 'view') {
-            navigate(`/dashboard/users/${user.id}`);
+            navigate(`/dashboard/users/${user.clientID}`);
         } else {
             setModal({ type: action as ModalType, user });
         }
@@ -176,19 +181,23 @@ export default function UserManagement() {
 
     const handleConfirm = () => {
         if (!modal.user) return;
-        const { type, user } = modal;
-
-        setUsers(prev => prev.map(u => {
-            if (u.id !== user.id) return u;
-            if (type === 'suspend') return { ...u, status: 'Suspended' as UserStatus };
-            if (type === 'unsuspend') return { ...u, status: 'Active' as UserStatus };
-            return u;
-        }).filter(u => type === 'delete' ? u.id !== user.id : true));
-
+        // API call to suspend/delete would go here
+        toast.info(`Action ${modal.type} triggered for ${modal.user.name}`);
         setModal({ type: null, user: null });
     };
 
-    const pageNumbers = [1, 2, 3, '...', 10, 11, 12];
+    // Simple pagination range
+    const getPageNumbers = () => {
+        const pages = [];
+        for (let i = 1; i <= totalPages; i++) {
+            if (i <= 3 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                pages.push(i);
+            } else if (pages[pages.length - 1] !== '...') {
+                pages.push('...');
+            }
+        }
+        return pages;
+    };
 
     return (
         <div className="space-y-6">
@@ -197,13 +206,25 @@ export default function UserManagement() {
                 <div className="flex items-center gap-3">
                     <h1 className="text-xl font-bold text-slate-900">All users</h1>
                     <span className="px-2.5 py-0.5 bg-yellow-50 border border-yellow-200 text-yellow-700 text-xs font-bold rounded-full">
-                        {TOTAL_USERS.toLocaleString()}
+                        {totalUsers.toLocaleString()}
                     </span>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-                    <Filter size={15} />
-                    Filter
-                </button>
+                <div className="flex items-center gap-3">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                        <input
+                            type="text"
+                            placeholder="Search users..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-yellow-400 w-64"
+                        />
+                    </div>
+                    <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
+                        <Filter size={15} />
+                        Filter
+                    </button>
+                </div>
             </div>
 
             {/* Table Card */}
@@ -219,30 +240,40 @@ export default function UserManagement() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {filtered.map((user) => (
-                            <tr
-                                key={user.id}
-                                onClick={() => navigate(`/dashboard/users/${user.id}`)}
-                                className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
-                            >
-                                <td className="px-5 py-4 text-sm text-slate-400">{user.sn}</td>
-                                <td className="px-5 py-4 text-sm font-semibold text-slate-900">{user.name}</td>
-                                <td className="px-5 py-4 text-sm text-slate-500">{user.email}</td>
-                                <td className="px-5 py-4 text-sm text-slate-500 font-mono">{user.id}</td>
-                                <td className="px-5 py-4 text-sm text-slate-500">{user.phone}</td>
-                                <td className="px-5 py-4"><StatusBadge status={user.status} /></td>
-                                <td className="px-5 py-4 text-sm text-slate-400">{user.lastLogin}</td>
-                                <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
-                                    <ActionsDropdown user={user} onAction={handleAction} />
-                                </td>
+                        {loading ? (
+                            <tr>
+                                <td colSpan={8} className="px-5 py-4 text-center text-sm text-slate-400">Loading users...</td>
                             </tr>
-                        ))}
+                        ) : filtered.length === 0 ? (
+                            <tr>
+                                <td colSpan={8} className="px-5 py-4 text-center text-sm text-slate-400">No users found</td>
+                            </tr>
+                        ) : (
+                            filtered.map((user, index) => (
+                                <tr
+                                    key={user.clientID}
+                                    onClick={() => navigate(`/dashboard/users/${user.clientID}`)}
+                                    className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
+                                >
+                                    <td className="px-5 py-4 text-sm text-slate-400">{(currentPage - 1) * 10 + index + 1}</td>
+                                    <td className="px-5 py-4 text-sm font-semibold text-slate-900">{user.name}</td>
+                                    <td className="px-5 py-4 text-sm text-slate-500">{user.email}</td>
+                                    <td className="px-5 py-4 text-sm text-slate-500 font-mono">{user.clientID}</td>
+                                    <td className="px-5 py-4 text-sm text-slate-500">{user.phone}</td>
+                                    <td className="px-5 py-4"><StatusBadge status={user.status as any} /></td>
+                                    <td className="px-5 py-4 text-sm text-slate-400">{user.last_login}</td>
+                                    <td className="px-5 py-4" onClick={(e) => e.stopPropagation()}>
+                                        <ActionsDropdown user={user as any} onAction={handleAction as any} />
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
 
                 {/* Pagination */}
                 <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100">
-                    <span className="text-sm text-slate-400">Page {currentPage} of {TOTAL_PAGES}</span>
+                    <span className="text-sm text-slate-400">Page {currentPage} of {totalPages}</span>
                     <div className="flex items-center gap-1">
                         <button
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -251,7 +282,7 @@ export default function UserManagement() {
                         >
                             <ChevronLeft size={16} />
                         </button>
-                        {pageNumbers.map((p, i) => (
+                        {getPageNumbers().map((p, i) => (
                             <button
                                 key={i}
                                 onClick={() => typeof p === 'number' && setCurrentPage(p)}
@@ -268,8 +299,8 @@ export default function UserManagement() {
                             </button>
                         ))}
                         <button
-                            onClick={() => setCurrentPage(p => Math.min(TOTAL_PAGES, p + 1))}
-                            disabled={currentPage === TOTAL_PAGES}
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
                             className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 disabled:opacity-30 transition-colors"
                         >
                             <ChevronRight size={16} />
@@ -280,9 +311,9 @@ export default function UserManagement() {
                         <input
                             type="number"
                             min={1}
-                            max={TOTAL_PAGES}
+                            max={totalPages}
                             defaultValue={currentPage}
-                            onBlur={(e) => setCurrentPage(Math.min(TOTAL_PAGES, Math.max(1, Number(e.target.value))))}
+                            onBlur={(e) => setCurrentPage(Math.min(totalPages, Math.max(1, Number(e.target.value))))}
                             className="w-14 text-center border border-slate-200 rounded-lg py-1 px-2 text-sm focus:outline-none focus:ring-1 focus:ring-yellow-400"
                         />
                     </div>
