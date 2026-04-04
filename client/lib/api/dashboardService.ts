@@ -227,6 +227,22 @@ export interface KycListResponse {
     };
 }
 
+// KYC Approve / Decline Types
+export interface KycActionPayload {
+    id: string;
+}
+
+export interface KycDeclinePayload {
+    id: string;
+    reason: string;
+}
+
+export interface KycActionResponse {
+    code: number;
+    status: boolean;
+    message: string;
+}
+
 // Portfolio Stats Types
 export interface PortfolioStatsResponse {
     code: number;
@@ -353,6 +369,26 @@ export const dashboardService = {
         }
     },
 
+    approveKyc: async (payload: KycActionPayload) => {
+        try {
+            const response = await apiClient<KycActionResponse>('POST', 'approveKyc', payload);
+            return response;
+        } catch (error) {
+            console.error('Error approving KYC:', error);
+            throw error;
+        }
+    },
+
+    declineKyc: async (payload: KycDeclinePayload) => {
+        try {
+            const response = await apiClient<KycActionResponse>('POST', 'declineKyc', payload);
+            return response;
+        } catch (error) {
+            console.error('Error declining KYC:', error);
+            throw error;
+        }
+    },
+
     fetchClients: async (payload: FetchClientsPayload) => {
         try {
             const response = await apiClient<FetchClientsResponse>('POST', 'fetchClients', payload);
@@ -386,8 +422,6 @@ export const dashboardService = {
     getAllUserPortfolios: async (payload: AllUserPortfoliosPayload) => {
         try {
             const response = await apiClient<AllUserPortfoliosResponse[]>('POST', 'allUserPortfolios', payload);
-            // The API client seems to return the first element if it's an array, but the response example shows a single object in an array [ { ... } ]
-            // The client.ts handles this: const responseData = Array.isArray(response.data) ? response.data[0] : response.data;
             return response as unknown as AllUserPortfoliosResponse;
         } catch (error) {
             console.error('Error fetching all user portfolios:', error);
@@ -403,5 +437,5 @@ export const dashboardService = {
             console.error('Error fetching single user portfolio:', error);
             throw error;
         }
-    }
+    },
 };
