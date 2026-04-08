@@ -29,6 +29,7 @@ import InvestStocks from "./pages/InvestStocks";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Overview from "./pages/Dashboard/Overview";
 import KYCManagement from "./pages/Dashboard/KYCManagement";
+import KYCDetail from "./pages/Dashboard/KYCDetail";
 import UserManagement from "./pages/Dashboard/UserManagement";
 import UserDetail from "./pages/Dashboard/UserDetail";
 import Transactions from "./pages/Dashboard/Transactions";
@@ -72,7 +73,10 @@ const App = () => (
           {/* Dashboard Routes */}
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Overview />} />
+
+            {/* KYC */}
             <Route path="/dashboard/kyc" element={<KYCManagement />} />
+            <Route path="/dashboard/kyc/:kycId" element={<KYCDetail />} />
 
             {/* Users */}
             <Route path="/dashboard/users" element={<UserManagement />} />
@@ -98,8 +102,8 @@ const App = () => (
 
             {/* Administration */}
             <Route path="/dashboard/learn" element={<Learn />} />
-             <Route path="/dashboard/support" element={<Support />}/>
-            <Route path="/dashboard/settings" element={<Settings />} /> 
+            <Route path="/dashboard/support" element={<Support />} />
+            <Route path="/dashboard/settings" element={<Settings />} />
           </Route>
 
           {/* App Routes */}
