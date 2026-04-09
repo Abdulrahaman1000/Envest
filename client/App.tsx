@@ -46,6 +46,7 @@ import InvestmentNoteBill from "./pages/Dashboard/InvestmentNoteBill";
 import Learn from "./pages/Dashboard/Learn";
 import Support from "./pages/Dashboard/Support";
 import Settings from "./pages/Dashboard/Settings";
+import InvestmentNoteDetail from "./pages/Dashboard/InvestmentNoteDetail";
 
 const queryClient = new QueryClient();
 
@@ -91,6 +92,7 @@ const App = () => (
             <Route path="/dashboard/investments" element={<InvestmentProducts />} />
             <Route path="/dashboard/investments/:stockId" element={<StockDetail />} />
             <Route path="/dashboard/investments/:stockId/add" element={<AddStock />} />
+            <Route path="/dashboard/investments/note/:stockId" element={<InvestmentNoteDetail />} />
             <Route path="/dashboard/investments/:stockId/edit" element={<AddStock />} />
 
             {/* Portfolio Management */}
