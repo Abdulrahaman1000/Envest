@@ -38,6 +38,8 @@ import TransactionFilter from "./pages/Dashboard/TransactionFilter";
 import InvestmentProducts from "./pages/Dashboard/InvestmentProducts";
 import StockDetail from "./pages/Dashboard/StockDetail";
 import AddStock from "./pages/Dashboard/AddStock";
+import NGNStocksOverview from "./pages/Dashboard/NGNStocksOverview";       // NEW
+import InvestmentNoteDetail from "./pages/Dashboard/InvestmentNoteDetail"; // NEW
 import PortfolioManagement from "./pages/Dashboard/PortfolioManagement";
 import PortfolioOverview from "./pages/Dashboard/PortfolioOverview";
 import InvestmentBreakdown from "./pages/Dashboard/InvestmentBreakdown";
@@ -87,11 +89,29 @@ const App = () => (
             <Route path="/dashboard/transactions/filter" element={<TransactionFilter />} />
             <Route path="/dashboard/transactions/:transactionId" element={<TransactionDetail />} />
 
-            {/* Investment Products */}
+            {/* ─── Investment Products ─────────────────────────────────────── */}
+
+            {/* 1. Main product list (Stocks tab + Investment Notes tab) */}
             <Route path="/dashboard/investments" element={<InvestmentProducts />} />
+
+            {/* 2. Stocks: Overview page with stats + table (NGN or US) */}
+            <Route path="/dashboard/investments/stocks-overview/:productId" element={<NGNStocksOverview />} />
+
+            {/* 3. Stocks: Add new stock (3-step wizard) */}
+            <Route path="/dashboard/investments/:productId/add" element={<AddStock />} />
+
+            {/* 4. Stocks: Individual stock detail (Basic Info / Financials / News / Buy-Sell) */}
+            <Route path="/dashboard/investments/stocks-overview/:productId/stock/:stockId" element={<StockDetail />} />
+            <Route path="/dashboard/investments/stocks-overview/:productId/stock/:stockId/edit" element={<AddStock />} />
+
+            {/* 5. Investment Notes: Tenure options detail page */}
+            <Route path="/dashboard/investments/notes/:noteId" element={<InvestmentNoteDetail />} />
+
+            {/* Legacy routes kept for backward-compat */}
             <Route path="/dashboard/investments/:stockId" element={<StockDetail />} />
-            <Route path="/dashboard/investments/:stockId/add" element={<AddStock />} />
             <Route path="/dashboard/investments/:stockId/edit" element={<AddStock />} />
+
+            {/* ─────────────────────────────────────────────────────────────── */}
 
             {/* Portfolio Management */}
             <Route path="/dashboard/portfolio" element={<PortfolioManagement />} />

@@ -16,8 +16,10 @@ interface Product {
 const INITIAL_PRODUCTS: Product[] = [
     { id: 'ngn-stocks', name: 'NGN Stocks', description: 'Full system control with the ability to manage users, permissions, and system settings.', type: 'Stocks' },
     { id: 'us-stocks', name: 'US Stocks', description: 'Full system control with the ability to manage users, permissions, and system settings.', type: 'Stocks' },
-    { id: 'golden-bridge-income', name: 'GoldenBridge Income Notes (GIN)', description: 'Full system control with the ability to manage users, permissions, and system settings.', type: 'Investment notes' },
-    { id: 'golden-bridge-ethical', name: 'GoldenBridge Ethical Notes (GEN)', description: 'Full system control with the ability to manage users, permissions, and system settings.', type: 'Investment notes' },
+    { id: 'golden-bridge-income', name: 'GoldenBridge Income Notes (GIN)', description: 'Retailers, individuals wishing to accumulate funds towards a future project.', type: 'Investment notes' },
+    { id: 'golden-bridge-ethical', name: 'GoldenBridge Ethical Notes (GEN)', description: 'Retailers, individuals wishing to accumulate funds towards a future project.', type: 'Investment notes' },
+    { id: 'golden-bridge-dollar', name: 'GoldenBridge Dollar Notes (GDN)', description: 'Retailers, individuals wishing to accumulate funds towards a future project.', type: 'Investment notes' },
+    { id: 'golden-bridge-treasury', name: 'GoldenBridge Treasury Notes (GTN)', description: 'Retailers, individuals wishing to accumulate funds towards a future project.', type: 'Investment notes' },
 ];
 
 function AddInvestmentModal({ onClose, onSave }: { onClose: () => void; onSave: (p: Product) => void }) {
@@ -128,6 +130,25 @@ export default function InvestmentProducts() {
     const handleDelete = (id: string) => setProducts(prev => prev.filter(p => p.id !== id));
     const handleSave = (product: Product) => setProducts(prev => [...prev, product]);
 
+    // ─── KEY CHANGE: Stocks go to /stocks-overview/:id, Notes go to /notes/:id ───
+    const handleView = (product: Product) => {
+        if (product.type === 'Stocks') {
+            // Goes to NGNStocksOverview (stats + table page)
+            navigate(`/dashboard/investments/stocks-overview/${product.id}`);
+        } else {
+            // Goes to InvestmentNoteDetail (tenure options page)
+            navigate(`/dashboard/investments/notes/${product.id}`);
+        }
+    };
+
+    const handleEdit = (product: Product) => {
+        if (product.type === 'Stocks') {
+            navigate(`/dashboard/investments/stocks-overview/${product.id}`);
+        } else {
+            navigate(`/dashboard/investments/notes/${product.id}`);
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* Tabs + Add Button */}
@@ -163,8 +184,8 @@ export default function InvestmentProducts() {
                         key={product.id}
                         product={product}
                         onDelete={() => handleDelete(product.id)}
-                        onEdit={() => navigate(`/dashboard/investments/${product.id}/edit`)}
-                        onView={() => navigate(`/dashboard/investments/${product.id}`)}
+                        onEdit={() => handleEdit(product)}
+                        onView={() => handleView(product)}
                     />
                 ))}
                 {filtered.length === 0 && (
