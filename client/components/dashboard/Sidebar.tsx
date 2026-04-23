@@ -4,6 +4,7 @@ import {
     Users,
     ArrowRightLeft,
     Briefcase,
+    TrendingUp,
     PieChart,
     BookOpen,
     HelpCircle,
@@ -27,6 +28,7 @@ const menuItems = [
         group: 'Finances', items: [
             { name: 'Transactions', icon: ArrowRightLeft, path: '/dashboard/transactions', count: 10 },
             { name: 'Investment Products', icon: Briefcase, path: '/dashboard/investments', count: 10 },
+            { name: 'Investments', icon: TrendingUp, path: '/dashboard/user-investments' },
             { name: 'Portfolio management', icon: PieChart, path: '/dashboard/portfolio' },
         ]
     },

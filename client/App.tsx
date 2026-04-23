@@ -48,6 +48,8 @@ import InvestmentNoteBill from "./pages/Dashboard/InvestmentNoteBill";
 import Learn from "./pages/Dashboard/Learn";
 import Support from "./pages/Dashboard/Support";
 import Settings from "./pages/Dashboard/Settings";
+import UserInvestments from "@/pages/Dashboard/UserInvestments";
+import UserInvestmentDetail from "@/pages/Dashboard/UserInvestmentDetail";
 
 const queryClient = new QueryClient();
 
@@ -124,6 +126,8 @@ const App = () => (
             <Route path="/dashboard/learn" element={<Learn />} />
             <Route path="/dashboard/support" element={<Support />} />
             <Route path="/dashboard/settings" element={<Settings />} />
+            <Route path="/dashboard/user-investments" element={<UserInvestments />} />
+            <Route path="/dashboard/user-investments/:investmentId" element={<UserInvestmentDetail />} />
           </Route>
 
           {/* App Routes */}
